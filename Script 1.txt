@@ -1,0 +1,71 @@
+import numpy as np
+import pandas as pd
+churn = dataset.loc[dataset['Exited'] == 1]
+churn = churn.sort_values('AcOpeningDate')
+churn['year'] = pd. DatetimeIndex(churn['AcOpeningDate']).year
+churn = churn.groupby('year')['Exited'].count().reset_index()
+churnDataset = dataset.loc[dataset['Exited'] == 1]
+TestData = dataset.loc[dataset['Exited'] == 0]
+ActualTest2 = pd.DataFrame(TestData.head(4000))
+ActualTest = pd.DataFrame(TestData.tail(3963))
+from sklearn.preprocessing import LabelEncoder
+labelencoder = LabelEncoder()
+churnDataset['Cust_Gender'] = labelencoder.fit_transform(churnDataset['Gender'])
+churnDataset['Location'] = labelencoder.fit_transform(churnDataset['Geography'])
+churnDataset = churnDataset.drop('Gender', axis = 1)
+churnDataset = churnDataset.drop('Geography', axis = 1)
+churnDataset = churnDataset.drop('RowNumber', axis = 1)
+churnDataset = churnDataset.drop('CustomerId', axis = 1)
+churnDataset = churnDataset.drop('Surname', axis = 1)
+churnDataset = churnDataset.drop('Date', axis = 1)
+churnDataset = churnDataset.drop('AcOpeningDate', axis = 1)
+churnDataset = churnDataset.drop('Tenure', axis = 1)
+from sklearn.preprocessing import LabelEncoder
+labelencoder = LabelEncoder()
+TestData['Cust_Gender'] = labelencoder.fit_transform(TestData['Gender'])
+TestData['Location'] = labelencoder.fit_transform(TestData['Geography'])
+TestData = TestData.drop('Gender', axis = 1)
+TestData = TestData.drop('Geography', axis = 1)
+TestData = TestData.drop('RowNumber', axis = 1)
+TestData = TestData.drop('CustomerId', axis = 1)
+TestData = TestData.drop('Surname', axis = 1)
+TestData = TestData.drop('Date', axis = 1)
+TestData = TestData.drop('AcOpeningDate', axis = 1)
+TestData = TestData.drop('Tenure', axis = 1)
+churnDataset = pd.get_dummies(churnDataset, columns=['Location'], prefix='Geo_Location')
+churnDataset['Churn'] = churnDataset['Exited']
+churnDataset = churnDataset.drop('Exited', axis = 1)
+TestData = pd.get_dummies(TestData, columns=['Location'], prefix='Geo_Location')
+TestData['Churn'] = TestData['Exited']
+TestData = TestData.drop('Exited', axis = 1)
+TrainData = pd.DataFrame(TestData.head(4000))
+TrainData2 = pd.DataFrame(TestData.tail(3963))
+TestingData = pd.DataFrame(TestData.tail(3963))
+TestingData2 = pd.DataFrame(TestData.head(4000))
+TrainingchurnDataset = pd.DataFrame()
+TrainingchurnDataset2 = pd.DataFrame()
+TrainingchurnDataset = churnDataset.append(TrainData)
+TrainingchurnDataset2 = churnDataset.append(TrainData2)
+X = TrainingchurnDataset.iloc[, 0-1].values
+y = TrainingchurnDataset.iloc[, -1].values
+X_test = TestingData.iloc[, 0-1].values
+y_test = TestingData.iloc[, -1].values
+X2 = TrainingchurnDataset2.iloc[, 0-1].values
+y2 = TrainingchurnDataset2.iloc[, -1].values
+X_test2 = TestingData2.iloc[, 0-1].values
+y_test2 = TestingData2.iloc[, -1].values
+from sklearn.ensemble import RandomForestClassifier
+classifier = RandomForestClassifier(n_estimators = 10, criterion = 'entropy', random_state=42)
+classifier.fit(X, y)
+from sklearn.ensemble import RandomForestClassifier
+classifier2 = RandomForestClassifier(n_estimators = 10, criterion = 'entropy', random_state=42)
+classifier2.fit(X2, y2)
+y_pred = classifier.predict(X_test)
+y_pred2 = classifier2.predict(X_test2)
+ActualTest['Prediction'] = y_pred
+ActualTest2['Prediction'] = y_pred2
+ActualTest['Prediction'] = ActualTest['Prediction'].map({0'No Churn', 1'Churn'})
+ActualTest2['Prediction'] = ActualTest2['Prediction'].map({0'No Churn', 1'Churn'})
+FinalTest = ActualTest2.append(ActualTest)
+FinalTest['HasCrCard'] = FinalTest['HasCrCard'].map({0'No', 1'Yes'})
+FinalTest['IsActiveMember'] = FinalTest['IsActiveMember'].map({0'Not Active', 1'Active'})
